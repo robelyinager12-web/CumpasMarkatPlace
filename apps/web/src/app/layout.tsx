@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { Navbar } from '@/components/layout/Navbar'
+import { Providers } from '@/components/layout/Providers'
 import { APP_NAME, TAGLINE } from '@/lib/constants'
 
 export const metadata: Metadata = {
@@ -16,7 +18,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">{children}</body>
+      <body className="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
