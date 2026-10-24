@@ -1,8 +1,15 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
+import { SESSION_COOKIE } from '@/lib/constants'
 
-// Phase 2 will redirect signed-out users away from these routes (and non-admins from /admin).
-export function middleware() {
-  return NextResponse.next()
+// Quick filter: no session cookie means go to login. The real check (valid session, admin role)
+// happens in the server layouts and, above all, in the API.
+export function middleware(request: NextRequest) {
+  if (request.cookies.has(SESSION_COOKIE)) return NextResponse.next()
+
+  const url = request.nextUrl.clone()
+  url.pathname = '/auth/login'
+  url.search = `?next=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`
+  return NextResponse.redirect(url)
 }
 
 export const config = {
