@@ -93,6 +93,8 @@ model User {
   reportsFiled  ListingReport[]
   notifications Notification[]
   auditLogs     AuditLog[]
+    sessions      Session[]
+  authTokens    AuthToken[]
 }
 
 model StudentVerification {
@@ -101,6 +103,8 @@ model StudentVerification {
   status     VerificationStatus @default(UNVERIFIED)
   reviewedBy String?
   note       String?
+    requestNote String?
+  requestedAt DateTime?
   reviewedAt DateTime?
   user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt  DateTime           @default(now())
@@ -249,4 +253,36 @@ model AuditLog {
   actor      User     @relation(fields: [actorId], references: [id])
   createdAt  DateTime @default(now())
   @@index([actorId, createdAt])
+}
+enum AuthTokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  userAgent  String?
+  ip         String?
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String
+  type      AuthTokenType
+  tokenHash String        @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
 }
