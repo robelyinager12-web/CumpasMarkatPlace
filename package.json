@@ -1,0 +1,23 @@
+{
+  "name": "unikamp",
+  "private": true,
+  "version": "0.1.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:web": "pnpm --filter @unikamp/web dev",
+    "dev:api": "pnpm --filter @unikamp/api dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:up": "docker compose up -d db",
+    "db:migrate": "pnpm --filter @unikamp/api prisma:migrate",
+    "db:deploy": "pnpm --filter @unikamp/api prisma:deploy",
+    "db:seed": "pnpm --filter @unikamp/api prisma:seed",
+    "db:studio": "pnpm --filter @unikamp/api prisma:studio"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@prisma/client", "@prisma/engines", "prisma", "esbuild", "sharp"]
+  }
+}
