@@ -1,0 +1,2 @@
+// Replaces control characters, collapses whitespace and trims. React escapes output, so this is for clean data.
+export const cleanText = (value: string) => value.replace(/\p{Cc}/gu, ' ').replace(/\s+/g, ' ').trim()
