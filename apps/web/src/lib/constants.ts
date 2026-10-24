@@ -1,4 +1,5 @@
 export const APP_NAME = 'UniKamp'
+export const SESSION_COOKIE = 'unikamp_session'
 export const TAGLINE = 'Your Campus. Your Marketplace.'
 
 const DEFAULT_API_URL = 'http://localhost:4000/api/v1'
