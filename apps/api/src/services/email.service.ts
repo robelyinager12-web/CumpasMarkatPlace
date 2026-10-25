@@ -9,8 +9,8 @@ const escapeHtml = (value: string) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
 
-const link = (path: string, token: string) =>
-  `${new URL(env.FRONTEND_URL).origin}${path}?token=${encodeURIComponent(token)}`
+const origin = () => new URL(env.FRONTEND_URL).origin
+const tokenLink = (path: string, token: string) => `${origin()}${path}?token=${encodeURIComponent(token)}`
 
 async function sendMail(mail: { to: string; subject: string; text: string; html: string }) {
   if (!env.EMAIL_API_KEY) {
@@ -36,7 +36,7 @@ async function sendMail(mail: { to: string; subject: string; text: string; html:
 }
 
 export async function sendVerificationEmail(to: string, name: string, token: string) {
-  const url = link('/auth/verify-email', token)
+  const url = tokenLink('/auth/verify-email', token)
   await sendMail({
     to,
     subject: 'Verify your UniKamp email',
@@ -46,11 +46,29 @@ export async function sendVerificationEmail(to: string, name: string, token: str
 }
 
 export async function sendPasswordResetEmail(to: string, name: string, token: string) {
-  const url = link('/auth/reset-password', token)
+  const url = tokenLink('/auth/reset-password', token)
   await sendMail({
     to,
     subject: 'Reset your UniKamp password',
     text: `Hi ${name},\n\nReset your password:\n${url}\n\nThis link expires in 1 hour. If you did not ask for this, ignore this email and your password stays the same.`,
     html: `<p>Hi ${escapeHtml(name)},</p><p><a href="${url}">Reset your password</a></p><p>This link expires in 1 hour. If you did not ask for this, ignore this email and your password stays the same.</p>`,
+  })
+}
+
+// Deliberately does not include the message text
+export async function sendNewMessageEmail(
+  to: string,
+  name: string,
+  fromName: string,
+  productTitle: string,
+  conversationId: string,
+) {
+  const url = `${origin()}/messages/${encodeURIComponent(conversationId)}`
+  const title = productTitle.slice(0, 80)
+  await sendMail({
+    to,
+    subject: 'You have a new message on UniKamp',
+    text: `Hi ${name},\n\n${fromName} sent you a message about "${title}".\nOpen UniKamp to read and reply:\n${url}\n\nStay safe: meet in a public place on campus and never pay in advance.`,
+    html: `<p>Hi ${escapeHtml(name)},</p><p>${escapeHtml(fromName)} sent you a message about &quot;${escapeHtml(title)}&quot;.</p><p><a href="${url}">Open UniKamp to read and reply</a></p><p>Stay safe: meet in a public place on campus and never pay in advance.</p>`,
   })
 }
