@@ -53,6 +53,11 @@ export function Navbar() {
               <Link href="/dashboard" className={linkClass}>
                 Dashboard
                 <Badge count={summary?.unreadNotifications ?? 0} />
+                              {user.role === 'ADMIN' ? (
+                <Link href="/admin" className={linkClass}>
+                  Admin
+                </Link>
+              ) : null}
               </Link>
               <button onClick={handleLogout} className="rounded-full border border-slate-300 px-4 py-1.5 hover:bg-slate-50">
                 Log out
