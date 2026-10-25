@@ -18,3 +18,12 @@ Dockerfile`).
   Without a key, production logs a warning and sends nothing.
 - The first administrator is created with `pnpm --filter @unikamp/api create-admin <email>`; until the Phase 5 screens
   exist, moderation uses the `/api/v1/admin/reports` endpoints.
+  ## First administrator (production)
+
+There is no signup path for admins. Register a normal account on the live site, then promote it once from the API host's
+shell (Render: "Shell" tab, Railway/Fly: one-off command):
+
+    pnpm --filter @unikamp/api create-admin you@yourdomain.com
+
+Use a long unique password for admin accounts. Two-factor sign-in is not built yet (planned for Phase 6), so keep the
+number of administrators small.
