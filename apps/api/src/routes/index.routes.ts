@@ -4,9 +4,14 @@ import { ok } from '../utils/api-response.js'
 import { asyncHandler } from '../utils/async-handler.js'
 import { adminRouter } from './admin/index.routes.js'
 import { authRouter } from './auth.routes.js'
+import { blocksRouter } from './blocks.routes.js'
 import { categoriesRouter } from './categories.routes.js'
+import { conversationsRouter } from './conversations.routes.js'
+import { dashboardRouter } from './dashboard.routes.js'
 import { favoritesRouter } from './favorites.routes.js'
+import { notificationsRouter } from './notifications.routes.js'
 import { productsRouter } from './products.routes.js'
+import { reportsRouter } from './reports.routes.js'
 import { universitiesRouter } from './universities.routes.js'
 
 export const apiRouter = Router()
@@ -35,4 +40,9 @@ apiRouter.use('/universities', universitiesRouter)
 apiRouter.use('/categories', categoriesRouter)
 apiRouter.use('/products', productsRouter)
 apiRouter.use('/favorites', favoritesRouter)
+apiRouter.use('/conversations', conversationsRouter)
+apiRouter.use('/blocks', blocksRouter)
+apiRouter.use('/reports', reportsRouter)
+apiRouter.use('/notifications', notificationsRouter)
+apiRouter.use('/dashboard', dashboardRouter)
 apiRouter.use('/admin', adminRouter)
