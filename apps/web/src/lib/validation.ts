@@ -45,3 +45,25 @@ export const profileSchema = z.object({
   department: z.string().trim().max(100, 'Maximum 100 characters'),
   campusId: z.string(),
 })
+export const listingSchema = z.object({
+  title: z.string().trim().min(3, 'Title must be at least 3 characters').max(120, 'Title is too long'),
+  description: z
+    .string()
+    .trim()
+    .min(10, 'Describe the item in at least 10 characters')
+    .max(2000, 'Description is too long'),
+  categoryId: z.string().min(1, 'Select a category'),
+  price: z
+    .string()
+    .trim()
+    .regex(/^\d+(\.\d{1,2})?$/, 'Enter a valid price, for example 450 or 450.50')
+    .refine((value) => Number(value) > 0, 'Price must be greater than 0'),
+  condition: z.enum(['NEW', 'LIKE_NEW', 'GOOD', 'FAIR']),
+  quantity: z
+    .string()
+    .trim()
+    .regex(/^\d+$/, 'Enter a whole number')
+    .refine((value) => Number(value) >= 1 && Number(value) <= 999, 'Enter a number from 1 to 999'),
+  campusId: z.string(),
+  negotiable: z.boolean(),
+})
