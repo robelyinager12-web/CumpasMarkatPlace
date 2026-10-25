@@ -10,3 +10,11 @@ Dockerfile`).
 4. Set API `FRONTEND_URL` to the Vercel URL (CORS), then redeploy the API.
 5. Verify `GET /api/v1/health` and run through the critical user flows.
 6. Enable automated database backups at your DB provider.
+## Messaging and email
+
+- Chat updates by polling (thread every 4 s, list every 10 s, badges every 30 s). No WebSocket server is needed,
+  which is why it works through the Vercel proxy.
+- New-message emails need `EMAIL_API_KEY` and a sender (`EMAIL_FROM`) on a domain you have verified with your email provider.
+  Without a key, production logs a warning and sends nothing.
+- The first administrator is created with `pnpm --filter @unikamp/api create-admin <email>`; until the Phase 5 screens
+  exist, moderation uses the `/api/v1/admin/reports` endpoints.
