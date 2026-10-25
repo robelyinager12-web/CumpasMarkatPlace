@@ -1,7 +1,10 @@
 import { prisma } from '../config/database.js'
 import { productListInclude } from './product.repository.js'
 
-const visibleProduct = { status: { in: ['ACTIVE', 'SOLD'] as ('ACTIVE' | 'SOLD')[] } }
+const visibleProduct = {
+  status: { in: ['ACTIVE', 'SOLD'] as ('ACTIVE' | 'SOLD')[] },
+  seller: { status: 'ACTIVE' as const },
+}
 
 export const favoriteRepository = {
   add: (userId: string, productId: string) =>

@@ -17,6 +17,7 @@ export const productDetailInclude = {
       id: true,
       fullName: true,
       createdAt: true,
+      status: true,
       verification: { select: { status: true } },
       university: { select: { name: true } },
     },

@@ -31,7 +31,8 @@ function buildWhere(query: ListProductsQuery): Prisma.ProductWhereInput {
   const hasPrice = query.minPrice !== undefined || query.maxPrice !== undefined
 
   return {
-    status: 'ACTIVE',
+        status: 'ACTIVE',
+    seller: { status: 'ACTIVE' }, // listings of suspended accounts are hidden
     ...(query.category ? { category: { slug: query.category } } : {}),
     ...(query.universityId ? { universityId: query.universityId } : {}),
     ...(query.campusId ? { campusId: query.campusId } : {}),
@@ -115,7 +116,7 @@ export const productsService = {
     if (!row) throw ApiError.notFound('Listing not found')
 
     const isOwner = viewer?.id === row.sellerId
-    const isPublic = row.status === 'ACTIVE' || row.status === 'SOLD'
+        const isPublic = (row.status === 'ACTIVE' || row.status === 'SOLD') && row.seller.status === 'ACTIVE'
     if (!isPublic && !isOwner && viewer?.role !== 'ADMIN') throw ApiError.notFound('Listing not found')
 
     const favorites = viewer ? await favoriteRepository.idsAmong(viewer.id, [row.id]) : NO_FAVORITES
