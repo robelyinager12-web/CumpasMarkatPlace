@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import type { Prisma } from '@prisma/client'
 import type { Express } from 'express'
 import request from 'supertest'
 import { prisma } from '../src/config/database.js'
@@ -21,9 +22,25 @@ export async function createTestUniversity() {
   })
 }
 
+// Reports and conversations point at products, so they are removed first
+async function purgeProducts(where: Prisma.ProductWhereInput) {
+  const ids = (await prisma.product.findMany({ where, select: { id: true } })).map((product) => product.id)
+  if (ids.length === 0) return
+  await prisma.listingReport.deleteMany({ where: { productId: { in: ids } } })
+  await prisma.conversation.deleteMany({ where: { productId: { in: ids } } })
+  await prisma.product.deleteMany({ where: { id: { in: ids } } })
+}
+
 export async function removeTestUniversity(id: string) {
-  await prisma.auditLog.deleteMany({ where: { actor: { universityId: id } } })
-  await prisma.product.deleteMany({ where: { universityId: id } })
+  const userIds = (await prisma.user.findMany({ where: { universityId: id }, select: { id: true } })).map(
+    (user) => user.id,
+  )
+  await prisma.listingReport.deleteMany({
+    where: { OR: [{ reporterId: { in: userIds } }, { reportedUserId: { in: userIds } }] },
+  })
+  await prisma.conversation.deleteMany({ where: { participants: { some: { userId: { in: userIds } } } } })
+  await purgeProducts({ OR: [{ universityId: id }, { sellerId: { in: userIds } }] })
+  await prisma.auditLog.deleteMany({ where: { actorId: { in: userIds } } })
   await prisma.user.deleteMany({ where: { universityId: id } })
   await prisma.campus.deleteMany({ where: { universityId: id } })
   await prisma.university.delete({ where: { id } })
@@ -35,7 +52,7 @@ export async function createTestCategory() {
 }
 
 export async function removeTestCategory(id: string) {
-  await prisma.product.deleteMany({ where: { categoryId: id } })
+  await purgeProducts({ categoryId: id })
   await prisma.category.delete({ where: { id } })
 }
 
