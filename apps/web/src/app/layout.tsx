@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import { Providers } from '@/components/layout/Providers'
 import { APP_NAME, TAGLINE } from '@/lib/constants'
@@ -18,10 +19,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+      <body className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 antialiased">
         <Providers>
           <Navbar />
-          {children}
+          <div className="flex-1">{children}</div>
+          <Footer />
         </Providers>
       </body>
     </html>
