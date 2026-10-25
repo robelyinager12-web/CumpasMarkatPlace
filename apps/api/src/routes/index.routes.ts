@@ -4,6 +4,9 @@ import { ok } from '../utils/api-response.js'
 import { asyncHandler } from '../utils/async-handler.js'
 import { adminRouter } from './admin/index.routes.js'
 import { authRouter } from './auth.routes.js'
+import { categoriesRouter } from './categories.routes.js'
+import { favoritesRouter } from './favorites.routes.js'
+import { productsRouter } from './products.routes.js'
 import { universitiesRouter } from './universities.routes.js'
 
 export const apiRouter = Router()
@@ -29,4 +32,7 @@ apiRouter.get(
 
 apiRouter.use('/auth', authRouter)
 apiRouter.use('/universities', universitiesRouter)
+apiRouter.use('/categories', categoriesRouter)
+apiRouter.use('/products', productsRouter)
+apiRouter.use('/favorites', favoritesRouter)
 apiRouter.use('/admin', adminRouter)
