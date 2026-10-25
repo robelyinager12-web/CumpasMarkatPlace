@@ -3,11 +3,22 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useSummary } from '@/hooks/useNotifications'
 import { APP_NAME } from '@/lib/constants'
+
+function Badge({ count }: { count: number }) {
+  if (count <= 0) return null
+  return (
+    <span className="ml-1 rounded-full bg-red-600 px-1.5 py-0.5 text-xs font-semibold text-white" aria-label={`${count} unread`}>
+      {count > 99 ? '99+' : count}
+    </span>
+  )
+}
 
 export function Navbar() {
   const router = useRouter()
   const { user, isLoading, logout } = useAuth()
+  const summary = useSummary(!!user).data
 
   async function handleLogout() {
     await logout()
@@ -32,11 +43,16 @@ export function Navbar() {
           </Link>
           {isLoading ? null : user ? (
             <>
+              <Link href="/messages" className={linkClass}>
+                Messages
+                <Badge count={summary?.unreadMessages ?? 0} />
+              </Link>
               <Link href="/favorites" className={linkClass}>
                 Favorites
               </Link>
               <Link href="/dashboard" className={linkClass}>
                 Dashboard
+                <Badge count={summary?.unreadNotifications ?? 0} />
               </Link>
               <button onClick={handleLogout} className="rounded-full border border-slate-300 px-4 py-1.5 hover:bg-slate-50">
                 Log out
