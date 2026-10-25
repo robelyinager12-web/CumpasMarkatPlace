@@ -1,3 +1,8 @@
-export default function Page() {
-  return <main className="p-8 text-slate-600">Coming soon.</main>
+import type { Metadata } from 'next'
+import { AuditLogViewer } from '@/components/admin/AuditLogViewer'
+
+export const metadata: Metadata = { title: 'Audit log | Admin' }
+
+export default function AdminAuditLogsPage() {
+  return <AuditLogViewer />
 }
