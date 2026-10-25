@@ -67,3 +67,12 @@ export const listingSchema = z.object({
   campusId: z.string(),
   negotiable: z.boolean(),
 })
+export const reportSchema = z
+  .object({
+    reason: z.string().min(1, 'Choose a reason'),
+    details: z.string().trim().max(1000, 'Maximum 1000 characters'),
+  })
+  .refine((values) => values.reason !== 'OTHER' || values.details.length >= 10, {
+    message: 'Please describe the problem (at least 10 characters)',
+    path: ['details'],
+  })
