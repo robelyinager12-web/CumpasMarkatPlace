@@ -1,3 +1,8 @@
-export default function Page() {
-  return <main className="p-8 text-slate-600">Coming soon.</main>
+import type { Metadata } from 'next'
+import { FeaturedAdmin } from '@/components/admin/FeaturedAdmin'
+
+export const metadata: Metadata = { title: 'Featured | Admin' }
+
+export default function AdminFeaturedPage() {
+  return <FeaturedAdmin />
 }
