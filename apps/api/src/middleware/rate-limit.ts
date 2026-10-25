@@ -16,3 +16,4 @@ const build = (windowMs: number, limit: number) =>
 export const globalLimiter = build(15 * 60 * 1000, 600)
 // Per IP. Campus Wi-Fi shares IPs, so this is generous; per-account lockout can be added in Phase 6.
 export const authLimiter = build(15 * 60 * 1000, env.AUTH_RATE_LIMIT_MAX)
+export const uploadLimiter = build(15 * 60 * 1000, 100)
