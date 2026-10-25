@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { ContactSellerButton } from '@/components/products/ContactSellerButton'
 import { FavoriteButton } from '@/components/products/FavoriteButton'
 import { ProductGallery } from '@/components/products/ProductGallery'
+import { ReportDialog } from '@/components/products/ReportDialog'
 import { RelatedProducts } from '@/components/products/RelatedProducts'
 import { SellerCard } from '@/components/products/SellerCard'
 import { formatEtb } from '@/lib/format-currency'
@@ -80,7 +81,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           </section>
 
           <SellerCard seller={product.seller} />
-          {!product.isOwner ? <ContactSellerButton /> : null}
+                    {!product.isOwner ? (
+            <div className="space-y-3">
+              <ContactSellerButton productId={product.id} canContact={isActive} sellerName={product.seller.name} />
+              <ReportDialog
+                type="LISTING"
+                targetId={product.id}
+                label="Report this listing"
+                className="text-sm text-slate-500 underline hover:text-red-600"
+              />
+            </div>
+          ) : null}
           <p className="text-xs text-slate-500">
             Meet in a public place on campus and never pay in advance. UniKamp does not hold or transfer money.
           </p>
