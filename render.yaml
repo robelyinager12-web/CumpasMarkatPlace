@@ -1,0 +1,24 @@
+# Render blueprint: API + managed PostgreSQL. Frontend goes to Vercel (root dir: apps/web).
+services:
+  - type: web
+    name: unikamp-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: unikamp-db, property: connectionString }
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false
+      - key: NODE_ENV
+        value: production
+              - key: IMAGE_STORAGE_DRIVER
+        value: cloudinary
+      - key: CLOUDINARY_URL
+        sync: false
+databases:
+  - name: unikamp-db
+    plan: free
