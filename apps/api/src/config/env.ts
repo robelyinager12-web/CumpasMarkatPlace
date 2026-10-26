@@ -11,6 +11,10 @@ const schema = z
     SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters'),
     BCRYPT_COST: z.coerce.number().int().min(4).max(15).default(12),
     AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(50),
+    LOGIN_MAX_FAILURES: z.coerce.number().int().min(3).max(20).default(5),
+    LOGIN_LOCK_MINUTES: z.coerce.number().int().min(1).max(240).default(15),
+    REQUIRE_ADMIN_2FA: z.enum(['true', 'false']).optional(),
+    ENABLE_API_DOCS: z.enum(['true', 'false']).optional(),
     EMAIL_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().default('UniKamp <onboarding@resend.dev>'),
     PUBLIC_API_URL: z.string().url().default('http://localhost:4000'),
@@ -45,4 +49,12 @@ if (!parsed.success) {
   process.exit(1)
 }
 
-export const env = parsed.data
+const data = parsed.data
+
+export const env = {
+  ...data,
+  // Administrators must use two-factor in production unless explicitly switched off
+  requireAdminTwoFactor: data.REQUIRE_ADMIN_2FA ? data.REQUIRE_ADMIN_2FA === 'true' : data.NODE_ENV === 'production',
+  // API docs are on in development and test, off in production unless explicitly switched on
+  enableApiDocs: data.ENABLE_API_DOCS ? data.ENABLE_API_DOCS === 'true' : data.NODE_ENV !== 'production',
+}
