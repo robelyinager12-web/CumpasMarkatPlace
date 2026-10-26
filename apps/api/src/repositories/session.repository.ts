@@ -8,7 +8,15 @@ export const sessionRepository = {
       where: { tokenHash },
       include: {
         user: {
-          select: { id: true, email: true, fullName: true, role: true, status: true, emailVerified: true },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            role: true,
+            status: true,
+            emailVerified: true,
+            totpEnabled: true,
+          },
         },
       },
     }),
