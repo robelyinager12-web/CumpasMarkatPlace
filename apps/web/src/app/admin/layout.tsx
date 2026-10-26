@@ -6,6 +6,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const user = await getServerUser()
   if (!user) redirect('/auth/login?next=/admin')
   if (user.role !== 'ADMIN') notFound() // do not reveal that the admin area exists
+  if (user.twoFactorRequired) redirect('/dashboard/security')
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 lg:flex-row">
