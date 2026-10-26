@@ -67,7 +67,7 @@ export function MessageThread({ initial }: { initial: ConversationSummary }) {
               {conversation.other.name}
               {conversation.other.verified ? <BadgeCheck className="h-4 w-4 text-emerald-600" aria-label="Verified student" /> : null}
             </p>
-            <p className="truncate text-xs text-slate-500">About: {conversation.product.title}</p>
+            <p className="truncate text-xs text-slate-600">About: {conversation.product.title}</p>
           </div>
         </Link>
         <div className="flex gap-3 text-xs">
@@ -79,11 +79,11 @@ export function MessageThread({ initial }: { initial: ConversationSummary }) {
                 toggleBlock.mutate()
               }
             }}
-            className="text-slate-500 underline hover:text-brand-purple disabled:opacity-50"
+            className="text-slate-600 underline hover:text-brand-purple disabled:opacity-50"
           >
             {conversation.blockedByMe ? 'Unblock' : 'Block'}
           </button>
-          <ReportDialog type="USER" targetId={conversation.other.id} label="Report user" className="text-slate-500 underline hover:text-red-600" />
+          <ReportDialog type="USER" targetId={conversation.other.id} label="Report user" className="text-slate-600 underline hover:text-red-600" />
         </div>
       </header>
 
@@ -100,7 +100,7 @@ export function MessageThread({ initial }: { initial: ConversationSummary }) {
         className="flex-1 space-y-2 overflow-y-auto p-4"
         aria-live="polite"
       >
-        {status === 'loading' ? <p className="text-center text-sm text-slate-500">Loading messages…</p> : null}
+        {status === 'loading' ? <p className="text-center text-sm text-slate-600">Loading messages…</p> : null}
         {status === 'error' ? <FormAlert message="Could not load messages. Please refresh the page." /> : null}
         {hasMore ? (
           <button type="button" onClick={loadOlder} disabled={loadingOlder} className="mx-auto block text-xs text-brand-purple hover:underline">
@@ -111,7 +111,7 @@ export function MessageThread({ initial }: { initial: ConversationSummary }) {
           <div key={message.id} className={cn('flex', message.mine ? 'justify-end' : 'justify-start')}>
             <div className={cn('max-w-[80%] rounded-2xl px-4 py-2 text-sm', message.mine ? 'bg-brand-purple text-white' : 'bg-slate-100 text-slate-900')}>
               <p className="whitespace-pre-wrap break-words">{message.body}</p>
-              <p className={cn('mt-1 text-right text-[11px]', message.mine ? 'text-white/70' : 'text-slate-500')}>
+              <p className={cn('mt-1 text-right text-[11px]', message.mine ? 'text-white/90' : 'text-slate-600')}>
                 {formatMessageTime(message.createdAt)}
               </p>
             </div>
