@@ -9,7 +9,7 @@ export function ProductGallery({ images, title }: { images: ProductImage[]; titl
   const [active, setActive] = useState(0)
 
   if (images.length === 0) {
-    return <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-slate-100 text-slate-400">No photos yet</div>
+    return <div className="flex aspect-[4/3] items-center justify-center rounded-2xl bg-slate-100 text-slate-600">No photos yet</div>
   }
 
   return (
