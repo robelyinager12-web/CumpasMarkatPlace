@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { authController } from '../controllers/auth.controller.js'
+import { twoFactorController } from '../controllers/two-factor.controller.js'
 import { authenticate } from '../middleware/authenticate.js'
 import { requireVerifiedEmail } from '../middleware/authorize.js'
 import { authLimiter } from '../middleware/rate-limit.js'
@@ -13,6 +14,7 @@ import {
   updateProfileSchema,
   verifyEmailSchema,
 } from '../validators/auth.validator.js'
+import { twoFactorCodeSchema, twoFactorConfirmSchema } from '../validators/two-factor.validator.js'
 
 export const authRouter = Router()
 
@@ -34,4 +36,16 @@ authRouter.post(
   requireVerifiedEmail,
   validate({ body: studentVerificationRequestSchema }),
   authController.requestStudentVerification,
+)
+
+// Two-factor sign-in (available to every signed-in user; required for administrators in production)
+authRouter.post('/2fa/setup', authenticate, authLimiter, twoFactorController.setup)
+authRouter.post('/2fa/enable', authenticate, authLimiter, validate({ body: twoFactorCodeSchema }), twoFactorController.enable)
+authRouter.post('/2fa/disable', authenticate, authLimiter, validate({ body: twoFactorConfirmSchema }), twoFactorController.disable)
+authRouter.post(
+  '/2fa/recovery-codes',
+  authenticate,
+  authLimiter,
+  validate({ body: twoFactorConfirmSchema }),
+  twoFactorController.recoveryCodes,
 )
