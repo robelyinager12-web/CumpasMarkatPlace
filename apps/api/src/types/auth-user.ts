@@ -6,4 +6,5 @@ export interface AuthUser {
   fullName: string
   role: Role
   emailVerified: boolean
+  twoFactorEnabled: boolean
 }
