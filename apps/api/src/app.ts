@@ -1,3 +1,4 @@
+import compression from 'compression'
 import cookieParser from 'cookie-parser'
 import express from 'express'
 import helmet from 'helmet'
@@ -8,6 +9,7 @@ import { notFound } from './middleware/not-found.js'
 import { globalLimiter } from './middleware/rate-limit.js'
 import { requestLogger } from './middleware/request-logger.js'
 import { requireTrustedOrigin } from './middleware/trusted-origin.js'
+import { docsRouter } from './routes/docs.routes.js'
 import { apiRouter } from './routes/index.routes.js'
 
 export const app = express()
@@ -16,6 +18,7 @@ app.disable('x-powered-by')
 app.set('trust proxy', 1) // behind one proxy on Render/Railway/Fly
 app.use(helmet())
 app.use(corsMiddleware)
+app.use(compression()) // smaller responses help on slow connections
 
 // Development only: serve locally stored photos. They are validated JPEG/PNG/WebP files with generated names.
 // Helmet blocks cross-origin embedding by default, so images are explicitly allowed to be shown by the web app.
@@ -34,6 +37,8 @@ app.use(requestLogger)
 app.use(express.json({ limit: '100kb' }))
 app.use(cookieParser())
 app.use(requireTrustedOrigin)
+
+if (env.enableApiDocs) app.use('/api/v1/docs', docsRouter)
 
 app.use('/api/v1', globalLimiter, apiRouter)
 
