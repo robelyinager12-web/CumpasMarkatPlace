@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { authenticate } from '../../middleware/authenticate.js'
 import { requireRole } from '../../middleware/authorize.js'
+import { requireAdminTwoFactor } from '../../middleware/two-factor.js'
 import { adminAuditLogsRouter } from './audit-logs.routes.js'
 import { adminCategoriesRouter } from './categories.routes.js'
 import { adminDashboardRouter } from './dashboard.routes.js'
@@ -13,8 +14,9 @@ import { adminVerificationsRouter } from './verifications.routes.js'
 
 export const adminRouter = Router()
 
-// Every admin route requires a signed-in ADMIN. Enforced here on the server, not just hidden in the UI.
-adminRouter.use(authenticate, requireRole('ADMIN'))
+// Every admin route requires a signed-in ADMIN (with two-factor on, when enforced).
+// Enforced here on the server, not just hidden in the UI.
+adminRouter.use(authenticate, requireRole('ADMIN'), requireAdminTwoFactor)
 
 adminRouter.use('/dashboard', adminDashboardRouter)
 adminRouter.use('/users', adminUsersRouter)
