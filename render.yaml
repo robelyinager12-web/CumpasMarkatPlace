@@ -1,4 +1,5 @@
-# Render blueprint: API + managed PostgreSQL. Frontend goes to Vercel (root dir: apps/web).
+# Render blueprint: API + managed PostgreSQL. The website goes to Vercel (root directory: apps/web).
+# Check the database plan and its limits in Render's current pricing before relying on "free".
 services:
   - type: web
     name: unikamp-api
@@ -7,18 +8,28 @@ services:
     dockerContext: .
     healthCheckPath: /api/v1/health
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: DATABASE_URL
-        fromDatabase: { name: unikamp-db, property: connectionString }
+        fromDatabase:
+          name: unikamp-db
+          property: connectionString
       - key: SESSION_SECRET
         generateValue: true
       - key: FRONTEND_URL
         sync: false
-      - key: NODE_ENV
-        value: production
-              - key: IMAGE_STORAGE_DRIVER
+      - key: IMAGE_STORAGE_DRIVER
         value: cloudinary
       - key: CLOUDINARY_URL
         sync: false
+      - key: EMAIL_API_KEY
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: REQUIRE_ADMIN_2FA
+        value: "true"
+      - key: ENABLE_API_DOCS
+        value: "false"
 databases:
   - name: unikamp-db
     plan: free
