@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '../config/database.js'
+import { env } from '../config/env.js'
 import { logger } from '../config/logger.js'
 import { authTokenRepository } from '../repositories/auth-token.repository.js'
 import { universityRepository } from '../repositories/university.repository.js'
@@ -9,7 +10,9 @@ import { ApiError } from '../utils/api-error.js'
 import { DUMMY_HASH, hashPassword, verifyPassword } from '../utils/password.js'
 import { generateToken, hashToken } from '../utils/tokens.js'
 import { sendPasswordResetEmail, sendVerificationEmail } from './email.service.js'
+import { loginThrottle } from './login-throttle.service.js'
 import { sessionService } from './session.service.js'
+import { twoFactorService } from './two-factor.service.js'
 
 const HOUR = 60 * 60 * 1000
 const EMAIL_TOKEN_TTL_MS = 24 * HOUR
@@ -29,6 +32,9 @@ export const toUserDto = (user: UserWithRelations) => ({
   university: user.university,
   campus: user.campus,
   studentVerification: user.verification?.status ?? 'UNVERIFIED',
+  twoFactorEnabled: user.totpEnabled,
+  // true when this administrator must turn on two-factor before the admin area opens
+  twoFactorRequired: user.role === 'ADMIN' && env.requireAdminTwoFactor && !user.totpEnabled,
 })
 
 async function issueEmailVerification(user: { id: string; email: string; fullName: string }) {
@@ -95,13 +101,29 @@ export const authService = {
     return { user: toUserDto(user), sessionToken }
   },
 
+  // Returns { twoFactorRequired } (and no session) when the password was right but a code is still needed.
   async login(input: LoginInput, meta: ClientMeta) {
+    const identity = `login:${input.email}`
+    await loginThrottle.assertNotLocked(identity)
+
     const found = await userRepository.findByEmail(input.email)
     const valid = await verifyPassword(input.password, found?.passwordHash ?? DUMMY_HASH)
-    if (!found || !valid) throw new ApiError(401, 'INVALID_CREDENTIALS', 'Incorrect email or password')
+    if (!found || !valid) {
+      await loginThrottle.recordFailure(identity)
+      throw new ApiError(401, 'INVALID_CREDENTIALS', 'Incorrect email or password')
+    }
     if (found.status !== 'ACTIVE') {
       throw new ApiError(403, 'ACCOUNT_SUSPENDED', 'Your account is suspended. Please contact support.')
     }
+
+    if (found.totpEnabled) {
+      if (!input.code) return { twoFactorRequired: true as const }
+      if (!(await twoFactorService.verifyLoginCode(found, input.code))) {
+        await loginThrottle.recordFailure(identity)
+        throw new ApiError(401, 'INVALID_CODE', 'That code is incorrect or has expired')
+      }
+    }
+    await loginThrottle.clear(identity)
 
     const user = await userRepository.findById(found.id)
     if (!user) throw ApiError.unauthorized()
