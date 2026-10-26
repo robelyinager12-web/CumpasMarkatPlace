@@ -11,6 +11,7 @@ const toAuthUser = (session: SessionWithUser) => ({
   fullName: session.user.fullName,
   role: session.user.role,
   emailVerified: session.user.emailVerified,
+  twoFactorEnabled: session.user.totpEnabled,
 })
 
 const readToken = (cookies: unknown): string | null => {
