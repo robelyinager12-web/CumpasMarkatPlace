@@ -3,17 +3,12 @@ import { clearSessionCookieOptions, SESSION_COOKIE, sessionCookieOptions } from 
 import { authService } from '../services/auth.service.js'
 import { sessionService } from '../services/session.service.js'
 import { verificationService } from '../services/verification.service.js'
-import { ApiError } from '../utils/api-error.js'
 import { ok } from '../utils/api-response.js'
 import { asyncHandler } from '../utils/async-handler.js'
+import { requireUser } from '../utils/current-user.js'
 import type { LoginInput, RegisterInput, UpdateProfileInput } from '../validators/auth.validator.js'
 
 const clientMeta = (req: Request) => ({ ip: req.ip, userAgent: req.get('user-agent')?.slice(0, 255) })
-
-const currentUserId = (req: Request) => {
-  if (!req.user) throw ApiError.unauthorized()
-  return req.user.id
-}
 
 export const authController = {
   register: asyncHandler(async (req, res) => {
@@ -23,9 +18,13 @@ export const authController = {
   }),
 
   login: asyncHandler(async (req, res) => {
-    const { user, sessionToken } = await authService.login(req.body as LoginInput, clientMeta(req))
-    res.cookie(SESSION_COOKIE, sessionToken, sessionCookieOptions)
-    res.json(ok({ user }))
+    const result = await authService.login(req.body as LoginInput, clientMeta(req))
+    if ('twoFactorRequired' in result) {
+      res.json(ok({ twoFactorRequired: true }))
+      return
+    }
+    res.cookie(SESSION_COOKIE, result.sessionToken, sessionCookieOptions)
+    res.json(ok({ user: result.user }))
   }),
 
   logout: asyncHandler(async (req, res) => {
@@ -36,11 +35,11 @@ export const authController = {
   }),
 
   me: asyncHandler(async (req, res) => {
-    res.json(ok({ user: await authService.getUser(currentUserId(req)) }))
+    res.json(ok({ user: await authService.getUser(requireUser(req).id) }))
   }),
 
   updateMe: asyncHandler(async (req, res) => {
-    res.json(ok({ user: await authService.updateProfile(currentUserId(req), req.body as UpdateProfileInput) }))
+    res.json(ok({ user: await authService.updateProfile(requireUser(req).id, req.body as UpdateProfileInput) }))
   }),
 
   verifyEmail: asyncHandler(async (req, res) => {
@@ -49,7 +48,7 @@ export const authController = {
   }),
 
   resendVerification: asyncHandler(async (req, res) => {
-    await authService.resendVerification(currentUserId(req))
+    await authService.resendVerification(requireUser(req).id)
     res.json(ok({ sent: true }))
   }),
 
@@ -66,6 +65,6 @@ export const authController = {
 
   requestStudentVerification: asyncHandler(async (req, res) => {
     const body = req.body as { message?: string } | undefined
-    res.json(ok(await verificationService.request(currentUserId(req), body?.message)))
+    res.json(ok(await verificationService.request(requireUser(req).id, body?.message)))
   }),
 }
