@@ -13,6 +13,8 @@ export interface User {
   university: { id: string; name: string }
   campus: { id: string; name: string } | null
   studentVerification: VerificationStatus
+  twoFactorEnabled: boolean
+  twoFactorRequired: boolean
 }
 
 export interface University {
