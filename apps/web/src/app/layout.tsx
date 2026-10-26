@@ -20,9 +20,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:font-semibold focus:text-brand-navy focus:shadow-lg"
+        >
+          Skip to main content
+        </a>
         <Providers>
           <Navbar />
-          <div className="flex-1">{children}</div>
+          <div id="main-content" tabIndex={-1} className="flex-1 outline-none">
+            {children}
+          </div>
           <Footer />
         </Providers>
       </body>
