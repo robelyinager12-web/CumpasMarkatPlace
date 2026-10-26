@@ -11,6 +11,7 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
+    "e2e": "pnpm --filter @unikamp/api e2e:prepare && pnpm --filter @unikamp/web e2e",
     "db:up": "docker compose up -d db",
     "db:migrate": "pnpm --filter @unikamp/api prisma:migrate",
     "db:deploy": "pnpm --filter @unikamp/api prisma:deploy",
