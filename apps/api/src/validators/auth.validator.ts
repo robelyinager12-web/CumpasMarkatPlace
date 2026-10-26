@@ -35,7 +35,11 @@ export const registerSchema = z.object({
   department: optionalText(100).optional(),
 })
 
-export const loginSchema = z.object({ email, password: z.string().min(1).max(200) })
+export const loginSchema = z.object({
+  email,
+  password: z.string().min(1).max(200),
+  code: z.string().trim().min(6).max(32).optional(),
+})
 export const verifyEmailSchema = z.object({ token })
 export const forgotPasswordSchema = z.object({ email })
 export const resetPasswordSchema = z.object({ token, password })
