@@ -14,7 +14,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={thumbUrl(product.image)} alt={product.title} loading="lazy" className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-slate-400">No photo</div>
+            <div className="flex h-full items-center justify-center text-sm text-slate-600">No photo</div>
           )}
           {product.status === 'SOLD' ? (
             <span className="absolute left-3 top-3 rounded-full bg-slate-900/80 px-3 py-1 text-xs font-semibold text-white">Sold</span>
@@ -26,7 +26,7 @@ export function ProductCard({ product }: { product: ProductSummary }) {
             {formatEtb(product.price)}
             {product.negotiable ? <span className="ml-2 text-xs font-medium text-brand-purple">Negotiable</span> : null}
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600">
             {CONDITION_LABEL[product.condition]} · {product.campus?.name ?? product.university.name}
           </p>
         </div>
