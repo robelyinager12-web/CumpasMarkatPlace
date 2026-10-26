@@ -2,6 +2,7 @@ import { ApiClientError, apiClient } from '@/lib/api-client'
 import type { User } from '@/types/user'
 
 type UserResponse = { user: User }
+export type LoginResult = { twoFactorRequired: true } | UserResponse
 
 export async function getMe(): Promise<User | null> {
   try {
@@ -12,7 +13,8 @@ export async function getMe(): Promise<User | null> {
   }
 }
 
-export const login = (input: { email: string; password: string }) => apiClient.post<UserResponse>('/auth/login', input)
+export const login = (input: { email: string; password: string; code?: string }) =>
+  apiClient.post<LoginResult>('/auth/login', input)
 
 export const register = (input: {
   fullName: string
@@ -44,3 +46,10 @@ export const updateProfile = (input: {
 
 export const requestStudentVerification = (message?: string) =>
   apiClient.post<{ status: string }>('/auth/student-verification', message ? { message } : {})
+
+export const setupTwoFactor = () => apiClient.post<{ secret: string; otpauthUrl: string }>('/auth/2fa/setup')
+export const enableTwoFactor = (code: string) => apiClient.post<{ recoveryCodes: string[] }>('/auth/2fa/enable', { code })
+export const disableTwoFactor = (input: { password: string; code: string }) =>
+  apiClient.post<{ disabled: boolean }>('/auth/2fa/disable', input)
+export const regenerateRecoveryCodes = (input: { password: string; code: string }) =>
+  apiClient.post<{ recoveryCodes: string[] }>('/auth/2fa/recovery-codes', input)
