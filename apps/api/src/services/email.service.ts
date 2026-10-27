@@ -12,14 +12,18 @@ const escapeHtml = (value: string) =>
 const origin = () => new URL(env.FRONTEND_URL).origin
 const tokenLink = (path: string, token: string) => `${origin()}${path}?token=${encodeURIComponent(token)}`
 
-async function sendMail(mail: { to: string; subject: string; text: string; html: string }) {
+type Mail = { to: string; subject: string; text: string; html: string }
+
+// Returns true when the provider accepted the message. Failures are logged, never thrown,
+// so a broken email provider cannot break registration or messaging.
+async function sendMail(mail: Mail): Promise<boolean> {
   if (!env.EMAIL_API_KEY) {
     if (env.NODE_ENV === 'production') {
       logger.warn({ to: mail.to }, 'EMAIL_API_KEY is not set: email was not sent')
     } else {
       logger.info(`\n[DEV EMAIL] to: ${mail.to}\nsubject: ${mail.subject}\n${mail.text}\n`)
     }
-    return
+    return false
   }
 
   try {
@@ -29,9 +33,18 @@ async function sendMail(mail: { to: string; subject: string; text: string; html:
       headers: { Authorization: `Bearer ${env.EMAIL_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ from: env.EMAIL_FROM, to: [mail.to], subject: mail.subject, text: mail.text, html: mail.html }),
     })
-    if (!response.ok) logger.error({ status: response.status }, 'Email provider rejected the message')
+    if (!response.ok) {
+      const detail = (await response.json().catch(() => null)) as { name?: string; message?: string } | null
+      logger.error(
+        { status: response.status, name: detail?.name, reason: detail?.message?.slice(0, 200) },
+        'Email provider rejected the message',
+      )
+      return false
+    }
+    return true
   } catch (err) {
     logger.error({ err }, 'Email provider unreachable')
+    return false
   }
 }
 
@@ -70,5 +83,15 @@ export async function sendNewMessageEmail(
     subject: 'You have a new message on UniKamp',
     text: `Hi ${name},\n\n${fromName} sent you a message about "${title}".\nOpen UniKamp to read and reply:\n${url}\n\nStay safe: meet in a public place on campus and never pay in advance.`,
     html: `<p>Hi ${escapeHtml(name)},</p><p>${escapeHtml(fromName)} sent you a message about &quot;${escapeHtml(title)}&quot;.</p><p><a href="${url}">Open UniKamp to read and reply</a></p><p>Stay safe: meet in a public place on campus and never pay in advance.</p>`,
+  })
+}
+
+// Used by the pre-launch check (pnpm check:email). Returns true if the provider accepted it.
+export function sendTestEmail(to: string) {
+  return sendMail({
+    to,
+    subject: 'UniKamp email test',
+    text: 'If you can read this, UniKamp can send email. You can delete this message.',
+    html: '<p>If you can read this, UniKamp can send email. You can delete this message.</p>',
   })
 }
