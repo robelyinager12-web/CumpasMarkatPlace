@@ -15,7 +15,9 @@ import { apiRouter } from './routes/index.routes.js'
 export const app = express()
 
 app.disable('x-powered-by')
-app.set('trust proxy', 1) // behind one proxy on Render/Railway/Fly
+// How many proxies sit in front of the API. 1 = one proxy (Render alone, or local). 2 = Vercel forwards to Render.
+// With the wrong number every visitor looks like the same IP address, which makes the per-IP limits hit everyone.
+app.set('trust proxy', env.TRUST_PROXY_HOPS)
 app.use(helmet())
 app.use(corsMiddleware)
 app.use(compression()) // smaller responses help on slow connections
