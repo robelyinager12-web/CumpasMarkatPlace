@@ -9,6 +9,7 @@ const schema = z
     DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
     FRONTEND_URL: z.string().url(),
     SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters'),
+    TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(1),
     BCRYPT_COST: z.coerce.number().int().min(4).max(15).default(12),
     AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(50),
     LOGIN_MAX_FAILURES: z.coerce.number().int().min(3).max(20).default(5),
